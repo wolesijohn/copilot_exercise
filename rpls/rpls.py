@@ -15,26 +15,40 @@
 import random
 
 def rpls():
-    options = ['rock', 'paper', 'scissors', 'lizard', 'spock']
-    rules = {
-        'rock': ['scissors', 'lizard'],
-        'paper': ['rock', 'spock'], 
-        'scissors': ['paper', 'lizard'],
-        'lizard': ['spock', 'paper'],
-        'spock': ['rock', 'scissors']
-    }
-    user_choice = input('Enter your choice: ').lower()
-    if user_choice not in options:
-        print('Invalid choice. Please try again.')
-        rpls()
-    comp_choice = random.choice(options)
-    print(f'Computer choice: {comp_choice}')
-    if user_choice == comp_choice:
-        print('It\'s a tie!')
-    elif comp_choice in rules[user_choice]:
-        print('You win!')
+    choices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
+    computer = random.choice(choices)
+    user = input('Enter your choice: ')
+    print(f'Computer choice: {computer}')
+
+    if user == computer:
+        print('It is a tie!')
+    elif user == 'rock':
+        if computer == 'scissors' or computer == 'lizard':
+            print('You win!')
+        else:
+            print('You lose!')
+    elif user == 'paper':
+        if computer == 'rock' or computer == 'spock':
+            print('You win!')
+        else:
+            print('You lose!')
+    elif user == 'scissors':
+        if computer == 'paper' or computer == 'lizard':
+            print('You win!')
+        else:
+            print('You lose!')
+    elif user == 'lizard':
+        if computer == 'spock' or computer == 'paper':
+            print('You win!')
+        else:
+            print('You lose!')
+    elif user == 'spock':
+        if computer == 'scissors' or computer == 'rock':
+            print('You win!')
+        else:
+            print('You lose!')
     else:
-        print('Computer wins!')
+        print('Invalid choice!')
 
 if __name__ == '__main__':
     rpls()
