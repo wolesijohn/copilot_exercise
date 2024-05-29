@@ -1,0 +1,156 @@
+clues = [
+    "There is a faded photograph of a grand ballroom filled with elegantly dressed people.",
+    "There is a scorched mark on the floor, hinting at a past fire.",
+    "There is a dusty old book with pages missing, suggesting a story half-told.",
+    "There is a shattered mirror, its pieces reflecting a room that seems different from the one you're in.",
+    "There is a worn-out map with certain locations marked, indicating a journey taken long ago.",
+    "There is a cryptic message etched into the wall, its meaning lost to time.",
+    "There is a rusted key, too old and fragile to fit any modern lock.",
+    "There is a painting of a stormy sea, hinting at past tumultuous events.",
+    "There is a single feather, a silent testament to a bird that once might have been here.",
+    "There is a set of footprints in the dust, leading to nowhere in particular."
+]
+sense_exp = [
+    "You see a flickering candlelight casting long, dancing shadows on the stone walls.",
+    "You hear the distant echo of footsteps, but you can't tell where they're coming from.",
+    "You smell the musty scent of old books and parchment, mixed with a hint of damp stone.",
+    "You touch the cold, rough surface of the stone wall, feeling the weight of centuries under your fingertips.",
+    "You sense an eerie stillness, as if the room is holding its breath.",
+    "You see a cobweb in the corner, shimmering in the dim light, untouched for years.",
+    "You hear the soft, mournful hoot of an owl somewhere in the distance.",
+    "You smell a faint, sweet scent, like roses left to wither in a forgotten vase.",
+    "You touch the worn velvet of a chair, imagining the many who might have sat here before you.",
+    "You sense a chill running down your spine, an unexplainable feeling of being watched.",
+    "You see the moonlight filtering through a crack in the window, casting a silver glow on the floor.",
+    "You hear the wind howling outside, its voice echoing through the empty halls."
+]
+from enum import Enum
+import random
+
+class RandomItemSelector:
+    def __init__(self, items):
+        self.items = items
+        self.used_items = []
+
+    def add_item(self, item):
+        self.items.append(item)
+
+    def pull_random_item(self):
+        if not self.items:
+            return None
+        if len(self.used_items) == len(self.items):
+            self.reset()
+        item = random.choice(self.items)
+        while item in self.used_items:
+            item = random.choice(self.items)
+        self.used_items.append(item)
+        return item
+
+    def reset(self):
+        self.used_items = []
+
+class SenseClueGenerator:
+    _instance = None
+
+    def __new__(cls, clues, sense_exp):
+        if cls._instance is None:
+            cls._instance = super(SenseClueGenerator, cls).__new__(cls)
+            cls._instance.clue_selector = RandomItemSelector(clues)
+            cls._instance.sense_selector = RandomItemSelector(sense_exp)
+        return cls._instance
+
+    def get_senseclue(self):
+        clue = self.clue_selector.pull_random_item()
+        sense = self.sense_selector.pull_random_item()
+        return f"{clue} {sense}"
+
+from abc import ABC, abstractmethod
+from enum import Enum
+
+class EncounterOutcome(Enum):
+    CONTINUE = 1
+    END = 2
+
+class Encounter(ABC):
+    @abstractmethod
+    def run_encounter(self):
+        pass
+
+class DefaultEncounter(Encounter):
+    def __init__(self, clues, sense_exp):
+        self.sense_clue_generator = SenseClueGenerator(clues, sense_exp)
+
+    def run_encounter(self):
+        sense_clue = self.sense_clue_generator.get_senseclue()
+        print(sense_clue)
+        return EncounterOutcome.CONTINUE
+class Room:
+    def __init__(self, name, encounter):
+        self.name = name
+        self.encounter = encounter
+
+    def visit_room(self):
+        return self.encounter.run_encounter()
+clues = ["clue1", "clue2", "clue3"]
+
+sense_exp = ["sense1", "sense2", "sense3"]
+
+rooms = [
+    Room("Throne Room", DefaultEncounter(clues, sense_exp)),
+    Room("Armory", DefaultEncounter(clues, sense_exp)),
+    Room("Library", DefaultEncounter(clues, sense_exp)),
+    Room("Dungeon", DefaultEncounter(clues, sense_exp)),
+    Room("Royal Chambers", DefaultEncounter(clues, sense_exp)),
+    Room("Kitchen", DefaultEncounter(clues, sense_exp))
+]
+class Castle:
+    def __init__(self, rooms):
+        self.room_selector = RandomItemSelector(rooms)
+
+    def select_door(self):
+        door_count = random.randint(2, 4)
+        print(f"There are {door_count} doors. Choose a door number between 1 and {door_count}.")
+
+        while True:
+            door_number = input("Your choice: ")
+            if door_number.isdigit() and 1 <= int(door_number) <= door_count:
+                return int(door_number)
+            else:
+                print(f"Invalid input. Please enter a number between 1 and {door_count}.")
+
+    def next_room(self):
+        self.select_door()
+        room = self.room_selector.pull_random_item()
+        print(f"You have entered the {room.name}.")
+        return room.visit_room()
+
+    def reset(self):
+        self.room_selector.reset()
+
+
+
+class Game:
+    def __init__(self, rooms):
+        self.castle = Castle(rooms)
+
+    def play_game(self):
+        print("Welcome to the game! Your objective is to navigate through the castle and find the treasure.")
+        while True:
+            outcome = self.castle.next_room()
+            if outcome == EncounterOutcome.END:
+                self.castle.reset()
+                print("Game Over")
+                play_again = input("Would you like to explore a different castle? (yes/no) ")
+                if play_again.lower() != "yes":
+                    break# Assuming you have defined your rooms and the Castle class
+rooms = [
+    Room("Throne Room", DefaultEncounter(clues, sense_exp)),
+    Room("Armory", DefaultEncounter(clues, sense_exp)),
+    Room("Library", DefaultEncounter(clues, sense_exp)),
+    Room("Dungeon", DefaultEncounter(clues, sense_exp)),
+    Room("Royal Chambers", DefaultEncounter(clues, sense_exp)),
+    Room("Kitchen", DefaultEncounter(clues, sense_exp))
+]
+
+game = Game(rooms)
+game.play_game()
