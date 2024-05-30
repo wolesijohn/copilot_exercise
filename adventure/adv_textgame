@@ -91,18 +91,82 @@ class Room:
 
     def visit_room(self):
         return self.encounter.run_encounter()
-clues = ["clue1", "clue2", "clue3"]
+    
+# Define the room names
+room_names = ["Throne Room", "Armory", "Library", "Dungeon", "Observatory", "Royal Chamber"]
 
-sense_exp = ["sense1", "sense2", "sense3"]
+# Create the rooms
+rooms = [Room(name, DefaultEncounter(clues, sense_exp)) for name in room_names]
+class TreasureEncounter(Encounter):
+    def run_encounter(self):
+        print("Congratulations! You have found the treasure and won the game!")
+        return EncounterOutcome.END
 
-rooms = [
-    Room("Throne Room", DefaultEncounter(clues, sense_exp)),
-    Room("Armory", DefaultEncounter(clues, sense_exp)),
-    Room("Library", DefaultEncounter(clues, sense_exp)),
-    Room("Dungeon", DefaultEncounter(clues, sense_exp)),
-    Room("Royal Chambers", DefaultEncounter(clues, sense_exp)),
-    Room("Kitchen", DefaultEncounter(clues, sense_exp))
-]
+rooms.append(Room("Treasure Room",TreasureEncounter()))
+
+import random
+
+class WizardEncounter(Encounter):
+    def run_encounter(self):
+        game_rules = {
+            "Fireball": ["Ice Shard", "Lightning Bolt"],
+            "Ice Shard": ["Wind Gust", "Earthquake"],
+            "Wind Gust": ["Lightning Bolt", "Fireball"],
+            "Lightning Bolt": ["Earthquake", "Ice Shard"],
+            "Earthquake": ["Fireball", "Wind Gust"]
+        }
+
+        while True:
+            wizard_choice = random.choice(list(game_rules.keys()))
+            user_choice = input("Choose your spell (Fireball, Ice Shard, Wind Gust, Lightning Bolt, Earthquake): ")
+
+            if user_choice not in game_rules:
+                print("Invalid spell. Please choose again.")
+                continue
+
+            print(f"The wizard casts {wizard_choice}.")
+
+            if user_choice == wizard_choice:
+                print("It's a draw! Play again.")
+            elif user_choice in game_rules[wizard_choice]:
+                print("The wizard's spell overpowers you. You have been defeated.")
+                return EncounterOutcome.END
+            else:
+                print("Your spell overpowers the wizard. You have defeated the wizard.")
+                return EncounterOutcome.CONTINUE
+rooms.append(Room("The Red Wizard's Lair", WizardEncounter()))
+import random
+
+
+
+class BlueWizardEncounter(Encounter):
+    def run_encounter(self):
+        game_rules = {
+            "Frost Nova": ["Arcane Missile", "Shadow Bolt"],
+            "Arcane Missile": ["Shadow Bolt", "Frost Nova"],
+            "Shadow Bolt": ["Frost Nova", "Arcane Missile"]
+        }
+
+        while True:
+            wizard_choice = random.choice(list(game_rules.keys()))
+            user_choice = input("Choose your spell (Frost Nova, Arcane Missile, Shadow Bolt): ")
+
+            if user_choice not in game_rules:
+                print("Invalid spell. Please choose again.")
+                continue
+
+            print(f"Blue Wizard casts {wizard_choice}.")
+
+            if user_choice == wizard_choice:
+                print("It's a draw! Play again.")
+            elif user_choice in game_rules[wizard_choice]:
+                print("You have been vanquished from this castle.")
+                return EncounterOutcome.END
+            else:
+                print("You have vanquished the Blue Wizard from this castle.")
+                return EncounterOutcome.CONTINUE
+rooms.append(Room("The Blue Wizard's Lair", BlueWizardEncounter()))
+
 class Castle:
     def __init__(self, rooms):
         self.room_selector = RandomItemSelector(rooms)
@@ -129,6 +193,8 @@ class Castle:
 
 
 
+
+
 class Game:
     def __init__(self, rooms):
         self.castle = Castle(rooms)
@@ -143,14 +209,7 @@ class Game:
                 play_again = input("Would you like to explore a different castle? (yes/no) ")
                 if play_again.lower() != "yes":
                     break# Assuming you have defined your rooms and the Castle class
-rooms = [
-    Room("Throne Room", DefaultEncounter(clues, sense_exp)),
-    Room("Armory", DefaultEncounter(clues, sense_exp)),
-    Room("Library", DefaultEncounter(clues, sense_exp)),
-    Room("Dungeon", DefaultEncounter(clues, sense_exp)),
-    Room("Royal Chambers", DefaultEncounter(clues, sense_exp)),
-    Room("Kitchen", DefaultEncounter(clues, sense_exp))
-]
+
 
 game = Game(rooms)
 game.play_game()
